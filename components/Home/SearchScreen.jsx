@@ -59,13 +59,20 @@ const SearchScreen = () => {
   // fetch medicine data
   const fetchMedicineData = async () => {
     setLoading(true);
+
+    const data = {
+      searchterm: filter.searchTerm,
+      ...filter,
+    };
+    delete data.searchTerm;
     try {
-      const response = await axios.get(
-        `https://back-end-pharma-hub-l8df.onrender.com/api/inventory/searchProductByProductName/${filter.searchTerm}`,
-        { headers: { Authorization: `Bearer ${user.accesstoken}` } }
+      const response = await axios.post(
+        "https://back-end-pharma-hub-l8df.onrender.com/api/inventory/filterProducts",
+        filter,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setLoading(false);
-      console.log("Search Medicine Data", response.data.data);
+      console.log("Search Medicine Data", response.datla.data);
       setMedicineList(response?.data?.data);
     } catch (error) {
       //console.error(error);

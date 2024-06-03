@@ -10,6 +10,11 @@ const AuthLayout = () => {
       <Stack>
         <Stack.Screen name="login" options={{ headerShown: true }} />
         <Stack.Screen name="register" options={{ headerShown: true }} />
+        <Stack.Screen name="forgot-password" options={{ headerShown: true }} />
+        <Stack.Screen
+          name="email_verification"
+          options={{ headerShown: true }}
+        />
       </Stack>
       <StatusBar style="dark" />
     </>

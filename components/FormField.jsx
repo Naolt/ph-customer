@@ -7,15 +7,16 @@ const FormField = ({
   placeholder,
   handleChangeText,
   otherStyles,
+  message = "",
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <View className={`space-y-2 ${otherStyles}`}>
-      <Text className="text-lg text-gray-600 font-pmedium">{title}</Text>
+      <Text className="text-base text-gray-600 font-pmedium">{title}</Text>
 
-      <View className="w-full h-16 px-4 bg-black-100 rounded border-2 border-gray-200 focus:border-secondary flex flex-row items-center">
+      <View className="w-full h-14 px-4 bg-black-100 rounded border-2 border-gray-200 focus:border-secondary flex flex-row items-center">
         <TextInput
           className="flex-1 text-black font-pregular text-base"
           style={{ color: "gray" }}
@@ -48,6 +49,7 @@ const FormField = ({
           )
         ) : null}
       </View>
+      {message ? <Text className="text-red-500 text-sm">{message}</Text> : null}
     </View>
   );
 };

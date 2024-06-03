@@ -91,7 +91,7 @@ const Profile = () => {
             </View>
             <View className="flex flex-col gap-0">
               <Text className="text-gray-700 font-psemibold">Log out</Text>
-              <Text className="text-gray-400">User: {user.user_id}</Text>
+              <Text className="text-gray-400">User: {user?.user_id}</Text>
             </View>
           </View>
         </TouchableOpacity>

@@ -60,6 +60,15 @@ const Filter = () => {
     router.push("home");
   };
 
+  const clearFilters = () => {
+    setTempFilter({
+      searchTerm: filter.searchTerm,
+      category: [],
+      brand: [],
+      price: "",
+      pharmacy: [],
+    });
+  };
   useEffect(() => {
     // Fetch categories
     axios
@@ -169,13 +178,22 @@ const Filter = () => {
           />
         </View>
       </ScrollView>
-      <CustomButton
-        title={"Apply Filter"}
-        handlePress={handleFilter} // Navigate to home screen
-        containerStyles={"w-full bg-blue-500 mt-10 absolute bottom-4"}
-        textStyles={"text-white"}
-        isLoading={false}
-      />
+      <View className="w-full flex flex-row mt-10 absolute bottom-4">
+        <CustomButton
+          title={"Clear Filter"}
+          handlePress={clearFilters} // Navigate to home screen
+          containerStyles={"flex-1 bg-gray-500 mr-2"}
+          textStyles={"text-white"}
+          isLoading={false}
+        />
+        <CustomButton
+          title={"Apply Filter"}
+          handlePress={handleFilter} // Navigate to home screen
+          containerStyles={"flex-1 bg-blue-500"}
+          textStyles={"text-white"}
+          isLoading={false}
+        />
+      </View>
     </View>
   );
 };

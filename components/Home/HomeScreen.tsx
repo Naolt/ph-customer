@@ -109,6 +109,17 @@ const HomeScreen = () => {
               <Text className="w-32 overflow-clip text-clip font-pregular text-sm">
                 Paracetamol
               </Text>
+              <View className="w-32 flex flex-row items-center">
+                <Text className="overflow-clip text-xs text-gray-500 text-clip font-pregular mr-1 ">
+                  ETB 20.00
+                </Text>
+                <Text className="text-red-500 text-xs font-pregular">
+                  20% off{" "}
+                </Text>
+              </View>
+              <Text className="overflow-clip text-clip text-gray-900 line-through font-pregular text-xs mr-2">
+                ETB 20.00
+              </Text>
             </View>
           ))}
         </ScrollView>

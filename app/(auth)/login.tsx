@@ -17,16 +17,12 @@ const login = () => {
   const { saveUser } = React.useContext(UserContext);
 
   const initialValues = {
-    phoneNumber: "",
+    identifier: "",
     password: "",
   };
 
   const validationSchema = Yup.object().shape({
-    phoneNumber: Yup.string()
-      .required("Phone Number is required")
-      .matches(/^[0-9]+$/, "Must be only digits")
-      .min(10, "Must be exactly 10 digits")
-      .max(10, "Must be exactly 10 digits"),
+    identifier: Yup.string().required("Phone Number or Email is required"),
     password: Yup.string().required("Password is required"),
   });
 
@@ -34,13 +30,8 @@ const login = () => {
     console.log("Form Data:", values);
     setLoading(true);
 
-    const data = {
-      identifier: values.phoneNumber,
-      password: values.password,
-    };
-
     axios
-      .post("https://back-end-pharma-hub.onrender.com/auth/", data)
+      .post("https://back-end-pharma-hub.onrender.com/auth/", values)
       .then(async (response) => {
         console.log("Response Data:", response.data);
         saveUser(response.data);
@@ -84,17 +75,17 @@ const login = () => {
               </Text>
 
               <FormField
-                title={"Phone Number"}
-                placeholder={"Enter your phone number"}
+                title={"Phone Number / Email"}
+                placeholder={"Enter your phone number or email"}
                 otherStyles={"mt-10"}
-                handleChangeText={handleChange("phoneNumber")}
-                onBlur={handleBlur("phoneNumber")}
-                value={values.phoneNumber}
+                handleChangeText={handleChange("identifier")}
+                onBlur={handleBlur("identifier")}
+                value={values.identifier}
                 type={"phone-pad"} // Pass type prop to FormField for specific handling (optional)
               />
-              {touched.phoneNumber && errors.phoneNumber && (
+              {touched.identifier && errors.identifier && (
                 <Text className="text-red-500 text-sm">
-                  {errors.phoneNumber}
+                  {errors.identifier}
                 </Text>
               )}
               <FormField
@@ -113,8 +104,8 @@ const login = () => {
               {/* forget password link */}
 
               <Text
-                className="text-blue-500 mt-4 w-full"
-                onPress={() => router.push("forgot-password")}
+                className="text-blue-500 mt-2 w-full"
+                onPress={() => router.push("forgot_password")}
               >
                 Forgot Password?
               </Text>
