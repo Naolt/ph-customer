@@ -1,10 +1,26 @@
-import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import { View, Text, ScrollView, Image } from "react-native";
+import React, { useEffect } from "react";
 import AdSpace from "./AdSpace";
+import axios from "axios";
 
 const HomeScreen = () => {
+  const [categories, setCategories] = React.useState([]);
+
+  useEffect(() => {
+    axios
+      .get("https://back-end-pharma-hub-l8df.onrender.com/api/category/all")
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  console.log("Categories", categories);
+
   return (
-    <View className="w-full space-y-6">
+    <ScrollView className="w-full space-y-6 pb-20 mt-5">
       {/* Adsection */}
       <ScrollView
         horizontal={true}
@@ -31,13 +47,14 @@ const HomeScreen = () => {
           }}
         >
           {/* Category component */}
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+          {categories.map((item) => (
             <View className="flex items-center gap-1">
-              <View
-                key={item}
-                className="w-24 h-24 bg-gray-500 rounded-full"
-              ></View>
-              <Text className="text-sm text-gray-800">Hello</Text>
+              <View key={item} className="w-24 h-24 bg-gray-500 rounded-full">
+                <Image source={require("../../assets/images/react-logo.png")} />
+              </View>
+              <Text className="text-sm text-gray-800 capitalize w-24 text-center">
+                {item?.name}
+              </Text>
             </View>
           ))}
         </ScrollView>
@@ -55,10 +72,17 @@ const HomeScreen = () => {
         >
           {/* Pharmacy component */}
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-            <View
-              className="w-32 h-32 bg-gray-500 rounded-lg"
-              key={item}
-            ></View>
+            <View className="space-y-1">
+              <View className="w-32 h-32 bg-gray-500 rounded-lg" key={item}>
+                <Image
+                  source={require("../../assets/images/react-logo.png")}
+                  className="w-full h-full"
+                />
+              </View>
+              <Text className="w-32 overflow-clip text-clip font-pregular text-sm">
+                ABC Pharmacy
+              </Text>
+            </View>
           ))}
         </ScrollView>
       </View>
@@ -75,14 +99,22 @@ const HomeScreen = () => {
         >
           {/* Discount component */}
           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-            <View
-              className="w-32 h-32 bg-gray-500 rounded-lg"
-              key={item}
-            ></View>
+            <View className="space-y-1">
+              <View className="w-32 h-32 bg-gray-500 rounded-lg" key={item}>
+                <Image
+                  source={require("../../assets/images/react-logo.png")}
+                  className="w-full h-full"
+                />
+              </View>
+              <Text className="w-32 overflow-clip text-clip font-pregular text-sm">
+                Paracetamol
+              </Text>
+            </View>
           ))}
         </ScrollView>
       </View>
-    </View>
+      <View className="h-8"></View>
+    </ScrollView>
   );
 };
 

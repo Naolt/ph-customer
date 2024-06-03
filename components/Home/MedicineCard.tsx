@@ -6,17 +6,24 @@ import { CartContext } from "@/providers/CartProvider";
 import OrderCount from "./OrderCount";
 import { getItemById } from "@/providers/selectors/cartSelector";
 
-const MedicineCard = ({ id, name, pharmacy, price }) => {
+const MedicineCard = ({
+  id,
+  productName: name,
+  pharmacyName: pharmacy,
+  unitPrice: price,
+  image = "",
+}) => {
   const { cartDispatch, cartState } = useContext(CartContext);
 
   const itemCount = getItemById(cartState.items, id)?.quantity || 0;
 
   return (
-    <TouchableOpacity onPress={() => router.push("product/1")}>
+    <TouchableOpacity onPress={() => router.push(`product/${id}`)}>
       <View className="w-full bg-white rounded-3xl p-4 flex flex-row mb-4">
         {/* left */}
         <Image
-          source={require("../../assets/images/react-logo.png")}
+          //source={require("../../assets/images/react-logo.png")}
+          src={image}
           className="bg-white w-[75px] h-[75px] rounded-2xl mr-3"
         />
         {/* right */}
@@ -28,7 +35,7 @@ const MedicineCard = ({ id, name, pharmacy, price }) => {
           <View className="flex flex-row items-center justify-between">
             {/* medicine price */}
             <Text className="font-psemibold text-gray-800 text-base">
-              ETB {price}
+              ETB {price?.toFixed(2)}
             </Text>
             {itemCount == 0 ? (
               <UnstyledButton
@@ -38,7 +45,14 @@ const MedicineCard = ({ id, name, pharmacy, price }) => {
                 handlePress={() => {
                   cartDispatch({
                     type: "ADD_TO_CART",
-                    payload: { id, price, quantity: 1 }, // assuming each product has a unique id
+                    payload: {
+                      id,
+                      price,
+                      quantity: 1,
+                      image,
+                      pharmacy,
+                      name,
+                    }, // assuming each product has a unique id
                   });
                 }}
                 isLoading={false}

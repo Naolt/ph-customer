@@ -1,13 +1,37 @@
-import { View, Text, ScrollView, Image } from "react-native";
-import React, { useContext } from "react";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import { CartContext } from "@/providers/CartProvider";
 import OrderItem from "@/components/Checkout/OrderItem";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
+import * as Location from "expo-location";
 
 const Checkout = () => {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = "Waiting..";
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
+
   const { cartState } = useContext(CartContext);
   return (
     <View className="relative h-full w-full pb-[240px]">
@@ -23,20 +47,27 @@ const Checkout = () => {
           <Text className="font-psemibold text-gray-800 text-base">
             Deliver to
           </Text>
-          <View className="flex flex-row items-center border border-slate-300 p-2">
-            <Image
-              source={require("../../assets/images/react-logo.png")}
-              className="w-6 h-6 mr-2"
-            />
-            <View>
-              <Text className="text-gray-800 font-psemibold">
-                Current Location
-              </Text>
-              <Text className="text-gray-600 text-sm">
-                Addis Ababa, Ethiopia
-              </Text>
+          <TouchableOpacity
+            onPress={() => {
+              router.push("checkout/location");
+            }}
+          >
+            <View className="flex flex-row items-center border border-slate-300 p-2">
+              <Image
+                source={require("../../assets/images/react-logo.png")}
+                className="w-6 h-6 mr-2"
+              />
+              <View>
+                <Text className="text-gray-800 font-psemibold">
+                  Current Location
+                </Text>
+                <Text className="text-gray-600 text-sm">
+                  Addis Ababa, Ethiopia
+                </Text>
+                <Text className="text-gray-800 font-bold">{text}</Text>
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View className="mt-4">

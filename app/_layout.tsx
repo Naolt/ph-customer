@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { Slot, SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import CartProvider from "@/providers/CartProvider";
+import { FilterProvider } from "@/providers/FilterProvider";
+import UserProvider from "@/providers/AuthProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -37,22 +39,26 @@ const RootLayout = () => {
   }
 
   return (
-    <CartProvider>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="orderDetail"
-          options={{ headerShown: true, headerTitle: "Order Detail" }}
-        />
-      </Stack>
-    </CartProvider>
+    <UserProvider>
+      <CartProvider>
+        <FilterProvider>
+          <Stack>
+            <Stack.Screen
+              name="index"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="orderDetail"
+              options={{ headerShown: true, headerTitle: "Order Detail" }}
+            />
+          </Stack>
+        </FilterProvider>
+      </CartProvider>
+    </UserProvider>
   );
 };
 

@@ -8,10 +8,10 @@ const AuthLayout = () => {
   return (
     <>
       <Stack>
-        <Stack.Screen name="form1" options={{ headerShown: false }} />
-        <Stack.Screen name="form2" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: true }} />
+        <Stack.Screen name="register" options={{ headerShown: true }} />
       </Stack>
-      <StatusBar backgroundColor="white" style="light" />
+      <StatusBar style="dark" />
     </>
   );
 };

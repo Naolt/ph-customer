@@ -7,6 +7,8 @@ const OrderCount = ({ id }) => {
   const { cartDispatch, cartState } = useContext(CartContext);
   const item = getItemById(cartState.items, id);
 
+  console.log("Item:", item, id);
+
   const onAdd = () => {
     cartDispatch({
       type: "ADD_TO_CART",

@@ -2,6 +2,9 @@ export type CartItem = {
   id: string;
   quantity: number;
   price: number;
+  image: string;
+  name: string;
+  pharmacy: string;
 };
 
 export type CartState = {

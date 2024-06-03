@@ -1,9 +1,20 @@
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import Tab from "../Tab";
 import MedicineCard from "./MedicineCard";
 import PharmacyCard from "./PharmacyCard";
 import Cart from "../Cart";
+import axios from "axios";
+import { FilterContext } from "@/providers/FilterProvider";
+import { UserContext } from "@/providers/AuthProvider";
+import { set } from "react-hook-form";
 
 // test data
 const medicineList = [
@@ -37,6 +48,37 @@ const pharmacyList = [
 
 const SearchScreen = () => {
   const [activeTab, setActiveTab] = useState("medicine");
+  const { filter } = useContext(FilterContext);
+  const { user } = useContext(UserContext);
+
+  const [loading, setLoading] = useState(false);
+
+  const [medicineList, setMedicineList] = useState([]);
+  const [pharmacyList, setPharmacyList] = useState([]);
+
+  // fetch medicine data
+  const fetchMedicineData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://back-end-pharma-hub-l8df.onrender.com/api/inventory/searchProductByProductName/${filter.searchTerm}`,
+        { headers: { Authorization: `Bearer ${user.accesstoken}` } }
+      );
+      setLoading(false);
+      console.log("Search Medicine Data", response.data.data);
+      setMedicineList(response?.data?.data);
+    } catch (error) {
+      //console.error(error);
+      setLoading(false);
+      console.log("Error Fetching Products", error.response.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedicineData();
+    console.log("I have been called", user.user_id);
+  }, [filter.searchTerm]);
+
   return (
     <View className="w-full h-full pb-20 mt-5 ">
       <View className="absolute bottom-16 w-full">
@@ -70,9 +112,25 @@ const SearchScreen = () => {
       {activeTab == "medicine" && (
         <View className="relative">
           <ScrollView showsVerticalScrollIndicator={false}>
-            {medicineList.map((data) => (
-              <MedicineCard {...data} key={data.id} />
-            ))}
+            {loading ? (
+              <View>
+                <View className="h-16 w-full rounded-lg mb-4 animate-pulse items-center justify-center">
+                  <ActivityIndicator
+                    animating={true}
+                    color="#0000ff"
+                    size="large"
+                  />
+                </View>
+              </View>
+            ) : medicineList.length > 0 ? (
+              medicineList?.map((data) => (
+                <MedicineCard {...data} key={data.id} />
+              ))
+            ) : (
+              <Text className="text-center text-lg text-primary font-psemibold">
+                No Product Found
+              </Text>
+            )}
           </ScrollView>
         </View>
       )}
