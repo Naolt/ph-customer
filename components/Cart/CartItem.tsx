@@ -4,11 +4,14 @@ import UnstyledButton from "../UnstyledButton";
 import OrderCount from "../Home/OrderCount";
 
 const CartItem = ({
-  id,
+  product_id,
   name = "Sample",
   pharmacy = "XYZ Pharmacy",
+  brand,
+  pharmacyId,
   price,
   image = "",
+  maxQuantity,
 }) => {
   return (
     <View className="flex-1 rounded-3xl p-4 flex flex-row">
@@ -23,15 +26,19 @@ const CartItem = ({
         <Text className="font-psemibold text-gray-800 text-base capitalize">
           {name}
         </Text>
+        {/* product brand */}
+        <Text className="font-psemibold text-gray-800 text-base capitalize">
+          {brand}
+        </Text>
         {/* medicine pharmacy */}
         <Text className="text-gray-800 text-sm capitalize">{pharmacy}</Text>
-        <View className="flex flex-row items-center justify-between">
-          {/* medicine price */}
-          <Text className="font-psemibold text-gray-800 text-base">
-            ETB {price?.toFixed(2)}
-          </Text>
-          <OrderCount id={id} />
-        </View>
+      </View>
+      <View className="flex flex-col items-center justify-between">
+        {/* medicine price */}
+        <Text className="font-psemibold text-gray-800 text-base">
+          ETB {price?.toFixed(2)}
+        </Text>
+        <OrderCount id={product_id} pharmacyId={pharmacyId} />
       </View>
     </View>
   );

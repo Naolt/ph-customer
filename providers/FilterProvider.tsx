@@ -16,7 +16,7 @@ export const FilterProvider = ({ children }) => {
     searchTerm: "",
     category: [],
     brand: [],
-    price: [],
+    price: "",
     pharmacy: [],
   });
 

@@ -10,11 +10,16 @@ export default function Layout() {
         }}
       />
       <Stack.Screen
-        name="modal"
+        name="payment"
         options={{
           headerShown: false,
           // Set the presentation mode to modal for our modal route.
-          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
+        name="location"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>

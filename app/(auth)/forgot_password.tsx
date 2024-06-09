@@ -5,20 +5,45 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
+import { Button } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import api from "@/api";
+import { useSnackbar } from "@/providers/SnackBarProvider";
 
 const ForgotPassword = () => {
+  const navigation = useNavigation();
+  const toast = useSnackbar();
+  const [loading, setLoading] = React.useState(false);
+
   const initialValues = {
     email: "",
   };
 
   const validationSchema = Yup.object().shape({
-    email: Yup.string().required("Full Name is required"),
+    email: Yup.string().required("Email is required").email("Email is invalid"),
   });
 
   const handleSubmit = (values) => {
     console.log("Form Data:", values);
-    // if it has error, return
-    // Handle form submission
+    setLoading(true);
+
+    api
+      .post(
+        "https://back-end-pharma-hub.onrender.com/auth/forgotPassword",
+        values
+      )
+      .then((response) => {
+        setLoading(false);
+        console.log("Response Data:", response?.data?.msg);
+
+        toast("Email sent successfully", "success");
+        navigation.navigate("reset_password", { email: values.email });
+      })
+      .catch((error) => {
+        setLoading(false);
+        toast(error?.response?.data?.message || "Error sending email", "error");
+        console.log("Error:", error);
+      });
   };
 
   return (
@@ -43,20 +68,20 @@ const ForgotPassword = () => {
               handleChangeText={handleChange("email")}
               onBlur={handleBlur("email")}
               value={values.email}
-              otherStyles="mt-10"
+              otherStyles="mt-5"
+              message={
+                touched.email && errors.email ? (errors.email as string) : ""
+              }
             />
-            {touched.email && errors.email && (
-              <Text className="text-red-500 text-sm">{errors?.email}</Text>
-            )}
-            <CustomButton
-              title="Send Email"
-              handlePress={() => {
-                router.push("reset_password");
-              }}
-              containerStyles="w-full bg-blue-500 mt-10"
-              textStyles="text-white"
-              isLoading={false}
-            />
+
+            <Button
+              onPress={() => handleSubmit(values)}
+              mode="contained"
+              className="py-2 mt-8"
+              loading={loading}
+            >
+              Send Email
+            </Button>
           </View>
         )}
       </Formik>

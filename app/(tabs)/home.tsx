@@ -12,9 +12,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import HomeScreen from "@/components/Home/HomeScreen";
 import SearchScreen from "@/components/Home/SearchScreen";
 import { FilterContext } from "@/providers/FilterProvider";
+import { Modal, Portal } from "react-native-paper";
+import PharmacyFilter from "@/components/Pharmacy/ProductFilter";
+
+const containerStyle = {
+  backgroundColor: "white",
+  padding: 20,
+  margin: 20,
+};
 
 const Home = () => {
   const { filter, setFilter } = React.useContext(FilterContext);
+  const [visible, setVisible] = React.useState(false);
+
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
 
   const hasFilter = Object.values(filter).some((item) => item.length > 0);
 
@@ -33,7 +45,7 @@ const Home = () => {
               setFilter({ ...filter, searchTerm: text });
             }}
           />
-          <TouchableOpacity onPress={() => router.push("filter")}>
+          <TouchableOpacity onPress={showModal}>
             <View className="border-2 rounded-full p-2">
               <Image
                 source={require("../../assets/icons/Filter.png")}
@@ -44,6 +56,19 @@ const Home = () => {
         </View>
         {/* Home screen */}
         {!hasFilter ? <HomeScreen /> : <SearchScreen />}
+        <Portal>
+          <Modal
+            visible={visible}
+            onDismiss={hideModal}
+            contentContainerStyle={containerStyle}
+          >
+            <PharmacyFilter
+              closeModal={hideModal}
+              filter={filter}
+              setFilter={setFilter}
+            />
+          </Modal>
+        </Portal>
       </View>
     </SafeAreaView>
   );

@@ -1,11 +1,14 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useContext } from "react";
 import { CartContext } from "@/providers/CartProvider";
-import { getItemById } from "@/providers/selectors/cartSelector";
+import { getItem } from "@/providers/selectors/cartSelector";
 
-const OrderCount = ({ id }) => {
+const OrderCount = ({ id, pharmacyId }) => {
   const { cartDispatch, cartState } = useContext(CartContext);
-  const item = getItemById(cartState.items, id);
+  const item = getItem(cartState.items, {
+    product_id: id,
+    pharmacy_id: pharmacyId,
+  });
 
   console.log("Item:", item, id);
 
@@ -19,7 +22,7 @@ const OrderCount = ({ id }) => {
   const onRemove = () => {
     cartDispatch({
       type: "REMOVE_ONE_FROM_CART",
-      payload: item.id,
+      payload: item,
     });
   };
 

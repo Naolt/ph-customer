@@ -1,10 +1,26 @@
 import { View, Text } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Slot, SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import CartProvider from "@/providers/CartProvider";
 import { FilterProvider } from "@/providers/FilterProvider";
 import UserProvider from "@/providers/AuthProvider";
+import { LocationProvider } from "@/providers/LocationProvider";
+import { PaperProvider } from "react-native-paper";
+import * as Linking from "expo-linking";
+import { SnackbarProvider } from "@/providers/SnackBarProvider";
+
+const prefix = Linking.createURL("/");
+
+const linking = {
+  prefixes: [prefix, "myapp://"],
+  config: {
+    screens: {
+      PaymentSuccess: "payment/success",
+      // other screens
+    },
+  },
+};
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -39,26 +55,39 @@ const RootLayout = () => {
   }
 
   return (
-    <UserProvider>
-      <CartProvider>
-        <FilterProvider>
-          <Stack>
-            <Stack.Screen
-              name="index"
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="orderDetail"
-              options={{ headerShown: true, headerTitle: "Order Detail" }}
-            />
-          </Stack>
-        </FilterProvider>
-      </CartProvider>
-    </UserProvider>
+    <PaperProvider>
+      <SnackbarProvider>
+        <UserProvider>
+          <LocationProvider>
+            <CartProvider>
+              <FilterProvider>
+                <Stack>
+                  {}
+                  <Stack.Screen
+                    name="index"
+                    options={{
+                      headerShown: false,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="orderDetail"
+                    options={{ headerShown: true, headerTitle: "Order Detail" }}
+                  />
+                </Stack>
+              </FilterProvider>
+            </CartProvider>
+          </LocationProvider>
+        </UserProvider>
+      </SnackbarProvider>
+    </PaperProvider>
   );
 };
 

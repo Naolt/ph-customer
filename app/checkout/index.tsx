@@ -6,40 +6,104 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import * as Location from "expo-location";
+import { getLocationName } from "@/utils/maputils";
+import { LocationContext } from "@/providers/LocationProvider";
+import { getTotalPrice } from "@/providers/selectors/cartSelector";
+import { getRoutePolyline } from "@/utils/getRoutePolyline";
+import { calculateDeliveryFee } from "@/utils/calculateDeliveryFee";
+import { convertToKm } from "@/utils/convertToKm";
+import { Button } from "react-native-paper";
 
 const Checkout = () => {
-  const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [locationName, setLocationName] = useState({
+    suburb: "",
+    county: "",
+    state: "",
+  });
+  const { location: userLocation } = useContext(LocationContext);
+  const { cartState, cartDispatch } = useContext(CartContext);
+  const [deliveryFee, setDeliveryFee] = useState(0);
+
+  const isDelivery = cartState.orderDetail.order_type === "delivery";
+  const subTotalPrice = getTotalPrice(cartState.items);
+  const [deliveryAddress, setDeliveryAddress] = useState(
+    cartState.orderDetail.order_address || ""
+  );
+  const [additionalNote, setAdditionalNote] = useState(
+    cartState.orderDetail.additional_note || ""
+  );
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
+    const fetchLocationName = async () => {
+      const name = await getLocationName(
+        cartState.orderDetail.latitude || userLocation.latitude,
+        cartState.orderDetail.longitude || userLocation.longitude
+      );
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
+      setLocationName({
+        suburb: name.suburb,
+        county: name.county,
+        state: name.state,
+      });
+    };
+
+    fetchLocationName();
+    // get location names
+  }, [cartState]);
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+      const { distance: distance } = await getRoutePolyline([
+        userLocation.latitude,
+        userLocation.longitude,
+      ]);
+
+      setDeliveryFee(calculateDeliveryFee(convertToKm(distance)));
+    };
+
+    if (isDelivery) fetchRoute();
+    // get location names
   }, []);
 
   let text = "Waiting..";
   if (errorMsg) {
     text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
+  } else if (locationName) {
+    text = JSON.stringify(locationName);
   }
 
-  const { cartState } = useContext(CartContext);
+  // set the subtotal price and delivery fee to the order detail
+  useEffect(() => {
+    cartDispatch({
+      type: "UPDATE_ORDER_DETAIL",
+      payload: {
+        ...cartState.orderDetail,
+        delivery_amount: deliveryFee,
+        total_amount: subTotalPrice,
+      },
+    });
+  }, [subTotalPrice, deliveryFee]);
+
+  const handleSumbit = () => {
+    cartDispatch({
+      type: "UPDATE_ORDER_DETAIL",
+      payload: {
+        ...cartState.orderDetail,
+        order_address: deliveryAddress,
+        additional_note: additionalNote,
+      },
+    });
+    router.push("/checkout/payment");
+  };
+
   return (
     <View className="relative h-full w-full pb-[240px]">
       <ScrollView className="mt-4 px-4 ">
         {/*  order list */}
         <ScrollView>
           {cartState.items.map((item) => {
-            return <OrderItem />;
+            return <OrderItem {...item} />;
           })}
         </ScrollView>
         {/* delivery Address */}
@@ -62,9 +126,14 @@ const Checkout = () => {
                   Current Location
                 </Text>
                 <Text className="text-gray-600 text-sm">
-                  Addis Ababa, Ethiopia
+                  {" "}
+                  {locationName.county}, {locationName.state}
                 </Text>
-                <Text className="text-gray-800 font-bold">{text}</Text>
+                {!locationName && (
+                  <Text className="text-gray-800 font-bold">
+                    Waiting for location...
+                  </Text>
+                )}
               </View>
             </View>
           </TouchableOpacity>
@@ -76,12 +145,16 @@ const Checkout = () => {
             title="Enter your address"
             placeholder="e.g. house number,bldg no, floor ..."
             otherStyles={"mt-4"}
+            handleChangeText={(text) => setDeliveryAddress(text)}
+            value={deliveryAddress}
           />
           <FormField
             title="Additional note (optional)"
             placeholder="e.g. ring the bell twice ..."
             otherStyles={"mt-4"}
             type="textarea"
+            handleChangeText={(text) => setAdditionalNote(text)}
+            value={additionalNote}
           />
         </View>
         {/* Action */}
@@ -90,28 +163,37 @@ const Checkout = () => {
         <View className="space-y-2  px-3">
           <View className="flex flex-row justify-between">
             <Text className="text-gray-900 font-psemibold">Subtotal</Text>
-            <Text className="text-gray-900 font-psemibold ">ETB 280.0</Text>
+            <Text className="text-gray-900 font-psemibold ">
+              ETB {subTotalPrice.toFixed(2)}
+            </Text>
           </View>
-          <View className="flex flex-row justify-between">
-            <Text className="text-gray-900 font-psemibold">Delivery fee</Text>
-            <Text className="text-gray-900 font-psemibold ">ETB 80.0</Text>
-          </View>
+          {isDelivery && (
+            <View className="flex flex-row justify-between">
+              <Text className="text-gray-900 font-psemibold">Delivery fee</Text>
+              <Text className="text-gray-900 font-psemibold ">
+                ETB {deliveryFee.toFixed(2)}
+              </Text>
+            </View>
+          )}
           <View className="flex flex-row justify-between">
             <Text className="text-lg text-blue-600 font-psemibold">Total</Text>
             <Text className="text-lg text-blue-600 font-psemibold ">
-              ETB 360.0
+              ETB {(subTotalPrice + deliveryFee).toFixed(2)}
             </Text>
           </View>
         </View>
-        <CustomButton
+        <Button mode="contained" onPress={handleSumbit}>
+          Place Order
+        </Button>
+        {/*<CustomButton
           title={"Place Order"}
           containerStyles={"mt-4 rounded-full bg-blue-500"}
           textStyles={"text-white"}
           handlePress={() => {
-            router.push("/checkout/modal");
+            router.push("/checkout/payment");
           }}
           isLoading={false}
-        />
+        />*/}
       </View>
     </View>
   );

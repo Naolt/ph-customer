@@ -8,12 +8,21 @@ const AuthLayout = () => {
   return (
     <>
       <Stack>
-        <Stack.Screen name="login" options={{ headerShown: true }} />
-        <Stack.Screen name="register" options={{ headerShown: true }} />
-        <Stack.Screen name="forgot-password" options={{ headerShown: true }} />
         <Stack.Screen
-          name="email_verification"
-          options={{ headerShown: true }}
+          name="login"
+          options={{ headerShown: true, title: "Login" }}
+        />
+        <Stack.Screen
+          name="register"
+          options={{ headerShown: true, title: "Register" }}
+        />
+        <Stack.Screen
+          name="forgot_password"
+          options={{ headerShown: true, title: "Forgot password" }}
+        />
+        <Stack.Screen
+          name="reset_password"
+          options={{ headerShown: true, title: "Reset password" }}
         />
       </Stack>
       <StatusBar style="dark" />

@@ -1,25 +1,27 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Toggle from "@/components/Toggle";
 import { router } from "expo-router";
 import { UserContext } from "@/providers/AuthProvider";
-import axios from "axios";
+import api from "@/api";
+import { LocationContext } from "@/providers/LocationProvider";
 
 const Profile = () => {
+  const { location } = useContext(LocationContext);
   const { user, removeUser } = React.useContext(UserContext);
-  const [active, setActive] = React.useState(false);
+  const [active, setActive] = React.useState(location.granted);
 
   const logout = () => {
     // hit the logout endpoint
 
-    axios
+    api
       .post("https://back-end-pharma-hub.onrender.com/auth/logout", {})
       .then((response) => {
         console.log("Logged Out:", response.data);
         removeUser();
-        router.push("login");
+        router.replace("login");
       })
       .catch((error) => {
         console.log("Log out Error:", error?.response?.data);
@@ -41,10 +43,10 @@ const Profile = () => {
               />
             </View>
             <View className="flex flex-col gap-0">
-              <Text className="text-gray-700 font-psemibold">
-                User information
+              <Text className="text-gray-700 font-psemibold">Profile</Text>
+              <Text className="text-gray-400">
+                Edit your profile information
               </Text>
-              <Text className="text-gray-400">Change full name</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -59,7 +61,7 @@ const Profile = () => {
             </View>
             <View className="flex flex-col gap-0">
               <Text className="text-gray-700 font-psemibold">Security</Text>
-              <Text className="text-gray-400">Change Password</Text>
+              <Text className="text-gray-400">Change your password</Text>
             </View>
           </View>
         </TouchableOpacity>
@@ -76,7 +78,7 @@ const Profile = () => {
               <Text className="text-gray-700 font-psemibold flex-1">
                 Enable location
               </Text>
-              <Toggle active={active} setActive={setActive} />
+              <Toggle active={active} setActive={() => {}} />
             </View>
             <Text className="text-gray-400">Allow app to use location</Text>
           </View>
@@ -91,7 +93,7 @@ const Profile = () => {
             </View>
             <View className="flex flex-col gap-0">
               <Text className="text-gray-700 font-psemibold">Log out</Text>
-              <Text className="text-gray-400">User: {user?.user_id}</Text>
+              <Text className="text-gray-400">Log out of your account</Text>
             </View>
           </View>
         </TouchableOpacity>

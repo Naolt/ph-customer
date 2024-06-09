@@ -17,8 +17,8 @@ const login = () => {
   const { saveUser } = React.useContext(UserContext);
 
   const initialValues = {
-    identifier: "",
-    password: "",
+    identifier: "naoltamrat36@gmail.com",
+    password: "P@ssw0rd",
   };
 
   const validationSchema = Yup.object().shape({

@@ -6,6 +6,7 @@ import OrderCount from "@/components/Home/OrderCount";
 import axios from "axios";
 import { UserContext } from "@/providers/AuthProvider";
 import { set } from "react-hook-form";
+import api from "@/api";
 
 const ProductDetail = () => {
   const { id } = useLocalSearchParams();
@@ -20,19 +21,15 @@ const ProductDetail = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  console.log("Product ID:", id);
   useEffect(() => {
     setLoading(true);
-    axios
+    api
       .get(
-        `https://back-end-pharma-hub-l8df.onrender.com/api/inventory/getByInventoryId/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.accesstoken}`,
-          },
-        }
+        `https://back-end-pharma-hub-l8df.onrender.com/api/inventory/getByInventoryId/${id}`
       )
       .then((response) => {
-        console.log("Product Data:", response.data);
+        console.log("Product Data:", JSON.stringify(response.data, null, 2));
         setLoading(false);
         setProduct(response.data.data);
       })

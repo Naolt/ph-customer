@@ -5,26 +5,9 @@ import { MaterialIcons as Icon } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import { FilterContext } from "@/providers/FilterProvider";
 import axios from "axios";
-import { set } from "react-hook-form";
 import { router } from "expo-router";
-
-const categoryData = [
-  { id: 0, name: "Electronics" },
-  { id: 1, name: "Fashion" },
-  { id: 2, name: "Home" },
-  { id: 3, name: "Beauty" },
-  { id: 4, name: "Health" },
-  { id: 5, name: "Sports" },
-];
-
-const brandData = [
-  { id: 20, name: "Apple" },
-  { id: 14, name: "Samsung" },
-  { id: 25, name: "Nike" },
-  { id: 37, name: "Adidas" },
-  { id: 48, name: "Sony" },
-  { id: 50, name: "LG" },
-];
+import { Button } from "react-native-paper";
+import api from "@/api";
 
 const priceData = [
   { id: 100, name: "10-20" },
@@ -32,17 +15,7 @@ const priceData = [
   { id: 300, name: "30-100" },
 ];
 
-const pharmacyData = [
-  { id: 440, name: "Pharmacy 1" },
-  { id: 4441, name: "Pharmacy 2" },
-  { id: 4442, name: "Pharmacy 3" },
-  { id: 4443, name: "Pharmacy 4" },
-  { id: 4444, name: "Pharmacy 5" },
-  { id: 444445, name: "Pharmacy 6" },
-];
-
-const Filter = () => {
-  const { filter, setFilter } = useContext(FilterContext);
+const PharmacyFilter = ({ filter, setFilter, closeModal }) => {
   const priceHolder = priceData.find((price) => price.name == filter.price);
   const [tempFilter, setTempFilter] = useState({
     searchTerm: filter.searchTerm,
@@ -52,9 +25,7 @@ const Filter = () => {
     pharmacy: [...filter.pharmacy],
   });
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([...brandData]);
   const [prices, setPrices] = useState([...priceData]);
-  const [pharmacies, setPharmacies] = useState([...pharmacyData]);
 
   const handleFilter = () => {
     const priceValue = priceData.find((price) => price.id == tempFilter.price);
@@ -65,7 +36,7 @@ const Filter = () => {
       price: priceValue ? priceValue.name : "",
       pharmacy: [...tempFilter.pharmacy],
     });
-    router.push("home");
+    closeModal();
   };
 
   const clearFilters = () => {
@@ -74,7 +45,7 @@ const Filter = () => {
       category: [],
       brand: [],
       price: "",
-      pharmacy: [],
+      pharmacy: [...tempFilter.pharmacy],
     });
     setFilter({
       ...tempFilter,
@@ -82,19 +53,20 @@ const Filter = () => {
   };
   useEffect(() => {
     // Fetch categories
-    axios
+    api
       .get("https://back-end-pharma-hub-l8df.onrender.com/api/category/all")
       .then((response) => {
         setCategories(response.data);
+        console.log("Categories", response.data);
       })
       .catch((error) => {
-        console.log(error);
+        console.log("Error Fetching Categories", error);
       });
   }, []);
 
   console.log(tempFilter);
   return (
-    <View className="relative h-full px-4 items-center py-8">
+    <View className="relative  px-4 items-center py-8">
       <ScrollView
         className="w-full"
         contentContainerStyle={{
@@ -145,44 +117,30 @@ const Filter = () => {
             selectedItems={[tempFilter.price]}
           />
         </View>
-
-        {/* pharmacy */}
-        <View>
-          <Text className="font-pmedium mb-1">Pharmacies</Text>
-          <SectionedMultiSelect
-            selectText="Pharmacy..."
-            searchPlaceholderText="Search pharmacies..."
-            items={pharmacies}
-            styles={{
-              chipContainer: styles.container,
-              selectToggle: styles.multiSelectBox,
-            }}
-            colors={{ primary: "#2563EB" }}
-            IconRenderer={Icon}
-            uniqueKey="id"
-            key={4}
-            onSelectedItemsChange={(selectedItems) => {
-              setTempFilter({ ...tempFilter, pharmacy: selectedItems });
-            }}
-            selectedItems={tempFilter.pharmacy}
-          />
-        </View>
       </ScrollView>
-      <View className="w-full flex flex-row mt-10 absolute bottom-4">
-        <CustomButton
+      <View className="flex flex-row gap-4 mt-4">
+        {/*<CustomButton
           title={"Clear Filter"}
           handlePress={clearFilters} // Navigate to home screen
           containerStyles={"flex-1 bg-gray-500 mr-2"}
           textStyles={"text-white"}
           isLoading={false}
-        />
-        <CustomButton
+        />*/}
+
+        <Button onPress={clearFilters} mode="outlined" className="flex-1">
+          Clear Filter
+        </Button>
+        <Button onPress={handleFilter} mode="contained" className="flex-1">
+          Apply Filter
+        </Button>
+
+        {/*<CustomButton
           title={"Apply Filter"}
           handlePress={handleFilter} // Navigate to home screen
           containerStyles={"flex-1 bg-blue-500"}
           textStyles={"text-white"}
           isLoading={false}
-        />
+        />*/}
       </View>
     </View>
   );
@@ -203,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Filter;
+export default PharmacyFilter;

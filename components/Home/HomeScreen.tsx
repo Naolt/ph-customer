@@ -1,23 +1,51 @@
-import { View, Text, ScrollView, Image } from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
 import AdSpace from "./AdSpace";
-import axios from "axios";
+import api from "@/api";
+import { LocationContext } from "@/providers/LocationProvider";
+import { Category } from "@/types";
+import { FilterContext } from "@/providers/FilterProvider";
 
 const HomeScreen = () => {
-  const [categories, setCategories] = React.useState([]);
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [nearByPharmacies, setNearByPharmacies] = React.useState<Pharmacy[]>(
+    []
+  );
+  const { location } = React.useContext(LocationContext);
+  const { filter, setFilter } = React.useContext(FilterContext);
+
+  console.log("Location", location);
 
   useEffect(() => {
-    axios
+    // Fetch categories
+    api
       .get("https://back-end-pharma-hub-l8df.onrender.com/api/category/all")
       .then((response) => {
         setCategories(response.data);
+        console.log("Categories", JSON.stringify(response.data, null, 2));
       })
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+    // Fetch nearby pharmacies
+    api
+      .post("https://back-end-pharma-hub.onrender.com/pharmacy/nearby", {
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+      })
+      .then((response) => {
+        setNearByPharmacies(response?.data);
+        console.log(
+          "Nearby pharmacies",
+          JSON.stringify(response?.data, null, 2)
+        );
+      })
+      .catch((error) => {
+        console.log("Error Fetching Nearby Pharmacies", error);
+      });
+  }, [location]);
 
-  console.log("Categories", categories);
+  //console.log("Categories", categories);
 
   return (
     <ScrollView className="w-full space-y-6 pb-20 mt-5">
@@ -47,15 +75,28 @@ const HomeScreen = () => {
           }}
         >
           {/* Category component */}
-          {categories.map((item) => (
-            <View className="flex items-center gap-1">
-              <View key={item} className="w-24 h-24 bg-gray-500 rounded-full">
-                <Image source={require("../../assets/images/react-logo.png")} />
+          {categories.map((item: Category) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() => {
+                setFilter({ ...filter, category: item.name });
+              }}
+            >
+              <View className="flex items-center gap-1">
+                <View
+                  key={item.id}
+                  className="w-24 h-24 bg-gray-500 rounded-full overflow-hidden"
+                >
+                  <Image
+                    src={item?.image || ""}
+                    className="w-full h-full rounded-full"
+                  />
+                </View>
+                <Text className="text-sm text-gray-800 capitalize w-24 text-center">
+                  {item?.name}
+                </Text>
               </View>
-              <Text className="text-sm text-gray-800 capitalize w-24 text-center">
-                {item?.name}
-              </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
@@ -71,7 +112,7 @@ const HomeScreen = () => {
           }}
         >
           {/* Pharmacy component */}
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+          {nearByPharmacies.map((item) => (
             <View className="space-y-1">
               <View className="w-32 h-32 bg-gray-500 rounded-lg" key={item}>
                 <Image
@@ -79,8 +120,8 @@ const HomeScreen = () => {
                   className="w-full h-full"
                 />
               </View>
-              <Text className="w-32 overflow-clip text-clip font-pregular text-sm">
-                ABC Pharmacy
+              <Text className="w-32 overflow-clip text-clip font-pmedium text-sm">
+                {item?.pharmacy_name}
               </Text>
             </View>
           ))}
